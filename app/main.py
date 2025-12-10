@@ -41,8 +41,10 @@ class AuthMiddleware(BaseHTTPMiddleware):
             )
         
         # 公开路径（不需要登录）
-        public_paths = ["/", "/login", "/api/auth/login", "/health", "/static"]
-        is_public = any(path.startswith(p) for p in public_paths)
+        public_exact_paths = {"/", "/login", "/api/auth/login", "/health"}
+        public_prefix_paths = ["/static"]  # 仅以这些前缀开头的路径无需登录
+
+        is_public = path in public_exact_paths or any(path.startswith(p) for p in public_prefix_paths)
         
         # /docs 和 /redoc 需要登录才能访问
         if not is_public:
