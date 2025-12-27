@@ -6,7 +6,7 @@ load_dotenv()
 
 MISACARD_API_BASE_URL = os.getenv(
     "MISACARD_API_BASE_URL",
-    "https://api.misacard.com/api/card"
+    "https://mercury.wxie.de/api/keys"
 )
 
 MISACARD_API_TOKEN = os.getenv("MISACARD_API_TOKEN")
@@ -20,8 +20,8 @@ if len(MISACARD_API_TOKEN) < 20:  # 假设token至少20个字符
 
 MISACARD_API_HEADERS = {
     "Authorization": f"Bearer {MISACARD_API_TOKEN}",
-    "Origin": "https://misacard.com",
-    "Referer": "https://misacard.com/",
+    "Origin": "https://mercury.wxie.de",
+    "Referer": "https://mercury.wxie.de/",
     "Accept": "application/json, text/plain, */*",
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/142.0.0.0 Safari/537.36",
 }

@@ -13,9 +13,10 @@ async def query_card_from_api(card_id: str) -> Tuple[bool, Optional[Dict], Optio
     try:
         timeout = httpx.Timeout(30.0, connect=10.0)
         async with httpx.AsyncClient(timeout=timeout, follow_redirects=True, verify=False) as client:
-            response = await client.get(
-                f"{API_BASE_URL}/{card_id}",
-                headers=API_HEADERS
+            response = await client.post(
+                f"{API_BASE_URL}/query",
+                headers=API_HEADERS,
+                json={"key": card_id}
             )
 
             if response.status_code == 200:
@@ -40,8 +41,9 @@ async def activate_card_via_api(card_id: str) -> Tuple[bool, Optional[Dict], Opt
         timeout = httpx.Timeout(30.0, connect=10.0)
         async with httpx.AsyncClient(timeout=timeout, follow_redirects=True, verify=False) as client:
             response = await client.post(
-                f"{API_BASE_URL}/activate/{card_id}",
-                headers=API_HEADERS
+                f"{API_BASE_URL}/redeem",
+                headers=API_HEADERS,
+                json={"key": card_id}
             )
 
             if response.status_code == 200:
