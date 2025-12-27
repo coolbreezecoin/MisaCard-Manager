@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>卡密激活</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&family=ZCOOL+KuaiLe&display=swap");
+
+      :root {
+        --bg: #0b1020;
+        --bg-2: #11223f;
+        --accent: #ff7a59;
+        --accent-2: #36d1dc;
+        --text: #f2f5ff;
+        --muted: #b6c3e0;
+        --card: rgba(255, 255, 255, 0.06);
+        --border: rgba(255, 255, 255, 0.12);
+        --shadow: 0 20px 60px rgba(5, 10, 25, 0.45);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        color: var(--text);
+        font-family: "Noto Serif SC", "PingFang SC", "Microsoft YaHei", serif;
+        background:
+          radial-gradient(900px circle at 10% 10%, rgba(255, 122, 89, 0.18), transparent 60%),
+          radial-gradient(800px circle at 90% 20%, rgba(54, 209, 220, 0.18), transparent 60%),
+          linear-gradient(135deg, var(--bg) 0%, var(--bg-2) 100%);
+        display: grid;
+        place-items: center;
+        padding: 32px 16px 48px;
+      }
+
+      .frame {
+        width: min(980px, 100%);
+        border: 1px solid var(--border);
+        border-radius: 28px;
+        background: var(--card);
+        box-shadow: var(--shadow);
+        padding: 36px 32px 40px;
+        backdrop-filter: blur(10px);
+        position: relative;
+        overflow: hidden;
+        animation: appear 700ms ease-out both;
+      }
+
+      .contact-link {
+        position: absolute;
+        top: 18px;
+        right: 22px;
+        font-size: 13px;
+        color: var(--muted);
+        text-decoration: none;
+        border: 1px solid var(--border);
+        padding: 6px 12px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.04);
+        transition: border 120ms ease, color 120ms ease, transform 120ms ease;
+      }
+
+      .contact-link:hover {
+        color: var(--text);
+        border-color: rgba(54, 209, 220, 0.6);
+        transform: translateY(-1px);
+      }
+
+      .frame::before {
+        content: "";
+        position: absolute;
+        inset: -50% -10%;
+        background:
+          repeating-linear-gradient(
+            120deg,
+            rgba(255, 255, 255, 0.03),
+            rgba(255, 255, 255, 0.03) 2px,
+            transparent 2px,
+            transparent 6px
+          );
+        opacity: 0.4;
+        pointer-events: none;
+      }
+
+      header {
+        display: grid;
+        gap: 12px;
+        margin-bottom: 24px;
+      }
+
+      .badge {
+        font-family: "ZCOOL KuaiLe", "Noto Serif SC", serif;
+        letter-spacing: 2px;
+        color: var(--accent-2);
+        text-transform: uppercase;
+        font-size: 14px;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: clamp(28px, 5vw, 46px);
+        line-height: 1.1;
+      }
+
+      .subtitle {
+        color: var(--muted);
+        font-size: 16px;
+        max-width: 560px;
+      }
+
+      .panel {
+        display: grid;
+        gap: 20px;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        margin-top: 28px;
+      }
+
+      .card {
+        padding: 22px;
+        border-radius: 20px;
+        background: rgba(10, 18, 36, 0.8);
+        border: 1px solid var(--border);
+        display: grid;
+        gap: 14px;
+        min-height: 210px;
+        transform: translateY(16px);
+        opacity: 0;
+        animation: rise 700ms ease-out forwards;
+      }
+
+      .card:nth-child(2) {
+        animation-delay: 120ms;
+      }
+
+      label {
+        font-size: 14px;
+        color: var(--muted);
+      }
+
+      input[type="text"] {
+        width: 100%;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid transparent;
+        border-radius: 12px;
+        color: var(--text);
+        padding: 14px 16px;
+        font-size: 16px;
+        outline: none;
+        transition: border 150ms ease, box-shadow 150ms ease;
+      }
+
+      input[type="text"]:focus {
+        border-color: rgba(255, 122, 89, 0.6);
+        box-shadow: 0 0 0 3px rgba(255, 122, 89, 0.2);
+      }
+
+      .actions {
+        display: grid;
+        gap: 12px;
+      }
+
+      .btn {
+        border: none;
+        border-radius: 14px;
+        padding: 12px 16px;
+        font-size: 16px;
+        cursor: pointer;
+        font-weight: 600;
+        color: #101425;
+        background: linear-gradient(135deg, var(--accent), #ffc371);
+        transition: transform 120ms ease, box-shadow 120ms ease;
+      }
+
+      .btn.secondary {
+        color: #04141b;
+        background: linear-gradient(135deg, var(--accent-2), #7fffd4);
+      }
+
+      .btn:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+        box-shadow: none;
+      }
+
+      .btn:not(:disabled):hover {
+        transform: translateY(-2px);
+        box-shadow: 0 14px 30px rgba(255, 122, 89, 0.25);
+      }
+
+      .btn.secondary:not(:disabled):hover {
+        box-shadow: 0 14px 30px rgba(54, 209, 220, 0.25);
+      }
+
+      .status-line {
+        font-size: 14px;
+        color: var(--muted);
+        text-align: center;
+        margin-top: 16px;
+      }
+
+      .result {
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+        background: rgba(7, 12, 24, 0.8);
+        border-radius: 16px;
+        padding: 16px;
+        border: 1px solid var(--border);
+        overflow: auto;
+        min-height: 180px;
+        color: #dce6ff;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      .card-title {
+        font-size: 16px;
+        font-weight: 600;
+      }
+
+      .billing {
+        display: grid;
+        gap: 12px;
+      }
+
+      .billing .btn.secondary {
+        width: 100%;
+      }
+
+      .info-list {
+        display: grid;
+        gap: 12px;
+      }
+
+      .info-row {
+        display: grid;
+        grid-template-columns: 90px 1fr auto;
+        gap: 12px;
+        align-items: center;
+        padding: 10px 12px;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid var(--border);
+      }
+
+      .info-label {
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .info-value {
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+        font-size: 14px;
+        word-break: break-all;
+      }
+
+      .copy-mini {
+        border: 1px solid var(--border);
+        background: transparent;
+        color: var(--text);
+        border-radius: 10px;
+        padding: 6px 10px;
+        font-size: 12px;
+        cursor: pointer;
+        transition: border 120ms ease, transform 120ms ease;
+      }
+
+      .copy-mini:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .copy-mini:not(:disabled):hover {
+        border-color: rgba(54, 209, 220, 0.6);
+        transform: translateY(-1px);
+      }
+
+      .tips {
+        margin: 0;
+        padding-left: 18px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .tips li {
+        margin-bottom: 8px;
+      }
+
+      @keyframes rise {
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes appear {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @media (max-width: 640px) {
+        .frame {
+          padding: 28px 20px 32px;
+        }
+
+        .panel {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          animation: none !important;
+          transition: none !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="frame">
+      <a class="contact-link" href="https://t.me/faithcut" target="_blank" rel="noreferrer">
+        联系客服：@faithcut
+      </a>
+      <header>
+        
+        <h1>卡密查询 / 激活</h1>
+        <div class="subtitle">
+          查询当前卡密状态或直接激活，激活后一小时有效，过期不退。
+        </div>
+      </header>
+
+      <section class="panel">
+        <div class="card">
+          <div>
+          
+            <input id="keyInput" type="text" placeholder="请输入卡密" />
+          </div>
+          <div class="actions">
+            <button class="btn" id="actionBtn">激活/查询</button>
+          </div>
+          <div class="card-title">卡片信息</div>
+          <div class="info-list" id="infoList">
+            <div class="info-row">
+              <div class="info-label">卡号</div>
+              <div class="info-value" id="cardNumber">-</div>
+              <button class="copy-mini" data-field="cardNumber">复制</button>
+            </div>
+            <div class="info-row">
+              <div class="info-label">安全码</div>
+              <div class="info-value" id="cardCvv">-</div>
+              <button class="copy-mini" data-field="cardCvv">复制</button>
+            </div>
+            <div class="info-row">
+              <div class="info-label">有效期</div>
+              <div class="info-value" id="cardExp">-</div>
+              <button class="copy-mini" data-field="cardExp">复制</button>
+            </div>
+            <div class="info-row">
+              <div class="info-label">卡片余额</div>
+              <div class="info-value" id="cardBalance">-</div>
+              <button class="copy-mini" data-field="cardBalance">复制</button>
+            </div>
+            <div class="info-row">
+              <div class="info-label">激活时间</div>
+              <div class="info-value" id="cardActivated">-</div>
+              <button class="copy-mini" data-field="cardActivated">复制</button>
+            </div>
+            <div class="info-row">
+              <div class="info-label">到期时间</div>
+              <div class="info-value" id="cardExpireTime">-</div>
+              <button class="copy-mini" data-field="cardExpireTime">复制</button>
+            </div>
+          </div>
+          <button class="btn secondary" id="copyAllBtn" disabled>
+            复制全部信息
+          </button>
+          <pre class="result hidden" id="resultBox">{}</pre>
+        </div>
+
+        <div class="card">
+          <div class="billing">
+            <div class="card-title">账单地址</div>
+            <div class="info-list" id="billingList">
+              <div class="info-row">
+                <div class="info-label">姓名</div>
+                <div class="info-value" id="billName">Donald Smith</div>
+                <button class="copy-mini" data-bill="billName">复制</button>
+              </div>
+              <div class="info-row">
+                <div class="info-label">街道地址</div>
+                <div class="info-value" id="billStreet">21700 W 50TH ST</div>
+                <button class="copy-mini" data-bill="billStreet">复制</button>
+              </div>
+              <div class="info-row">
+                <div class="info-label">街道地址2</div>
+                <div class="info-value" id="billStreet2"></div>
+                <button class="copy-mini" data-bill="billStreet2">复制</button>
+              </div>
+              <div class="info-row">
+                <div class="info-label">城市</div>
+                <div class="info-value" id="billCity">SHAWNEE</div>
+                <button class="copy-mini" data-bill="billCity">复制</button>
+              </div>
+              <div class="info-row">
+                <div class="info-label">州</div>
+                <div class="info-value" id="billState">Kansas</div>
+                <button class="copy-mini" data-bill="billState">复制</button>
+              </div>
+              <div class="info-row">
+                <div class="info-label">国家</div>
+                <div class="info-value" id="billCountry">美国</div>
+                <button class="copy-mini" data-bill="billCountry">复制</button>
+              </div>
+            </div>
+            <button class="btn secondary" id="copyBillingBtn">复制账单地址</button>
+          </div>
+        </div>
+      </section>
+      <div class="status-line" id="statusText">等待输入卡密...</div>
+    </main>
+
+    <script>
+      const endpoints = {
+        query: "/api/keys/query",
+        redeem: "/api/keys/redeem",
+      };
+
+      const keyInput = document.getElementById("keyInput");
+      const actionBtn = document.getElementById("actionBtn");
+      const statusText = document.getElementById("statusText");
+      const resultBox = document.getElementById("resultBox");
+      const copyAllBtn = document.getElementById("copyAllBtn");
+      const infoList = document.getElementById("infoList");
+      const billingList = document.getElementById("billingList");
+      const copyBillingBtn = document.getElementById("copyBillingBtn");
+      const cardNumber = document.getElementById("cardNumber");
+      const cardCvv = document.getElementById("cardCvv");
+      const cardExp = document.getElementById("cardExp");
+      const cardBalance = document.getElementById("cardBalance");
+      const cardActivated = document.getElementById("cardActivated");
+      const cardExpireTime = document.getElementById("cardExpireTime");
+      const billName = document.getElementById("billName");
+      const billStreet = document.getElementById("billStreet");
+      const billStreet2 = document.getElementById("billStreet2");
+      const billCity = document.getElementById("billCity");
+      const billState = document.getElementById("billState");
+      const billCountry = document.getElementById("billCountry");
+
+      const fieldLabels = {
+        cardNumber: "卡号",
+        cardCvv: "安全码",
+        cardExp: "有效期",
+        cardBalance: "卡片余额",
+        cardActivated: "激活时间",
+        cardExpireTime: "到期时间",
+      };
+
+      const fieldValues = {
+        cardNumber: "-",
+        cardCvv: "-",
+        cardExp: "-",
+        cardBalance: "-",
+        cardActivated: "-",
+        cardExpireTime: "-",
+      };
+
+      const billingLabels = {
+        billName: "姓名",
+        billStreet: "街道地址",
+        billStreet2: "街道地址2",
+        billCity: "城市",
+        billState: "州",
+        billCountry: "国家",
+      };
+
+      const billingValues = {
+        billName: "Donald Smith",
+        billStreet: "21700 W 50TH ST",
+        billStreet2: "",
+        billCity: "SHAWNEE",
+        billState: "Kansas",
+        billCountry: "美国",
+      };
+
+      const setLoading = (isLoading, label) => {
+        actionBtn.disabled = isLoading;
+        statusText.textContent = isLoading ? label : "等待输入卡密...";
+      };
+
+      const requestApi = async (type, keyId) => {
+        const response = await fetch(endpoints[type], {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ key_id: keyId }),
+        });
+
+        const data = await response.json().catch(() => null);
+        const payload = data ?? { error: "响应不是 JSON 格式" };
+        return { response, payload };
+      };
+
+      const isApiSuccess = (response, payload) =>
+        response.ok && (payload.success === undefined || payload.success === true);
+
+      const formatCardNumber = (value) => {
+        if (!value) return "-";
+        const clean = String(value).replace(/\s+/g, "");
+        return clean.replace(/(.{4})/g, "$1 ").trim();
+      };
+
+      const formatExpire = (month, year) => {
+        if (!month || !year) return "-";
+        const mm = String(month).padStart(2, "0");
+        const yy = String(year).length === 2 ? `20${year}` : String(year);
+        return `${mm}/${yy}`;
+      };
+
+      const formatTimestamp = (value) => {
+        if (!value) return "-";
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return String(value);
+        const pad = (num) => String(num).padStart(2, "0");
+        return `${date.getFullYear()}/${pad(date.getMonth() + 1)}/${pad(
+          date.getDate()
+        )} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(
+          date.getSeconds()
+        )}`;
+      };
+
+      const formatBalance = (value) => {
+        if (value === undefined || value === null || value === "") return "-";
+        const numeric = Number(value);
+        if (!Number.isNaN(numeric)) return `$${numeric}`;
+        return String(value);
+      };
+
+      const deriveExpireTime = (payload, card) => {
+        if (card && card.expire_time) return card.expire_time;
+        if (payload && payload.expire_time) return payload.expire_time;
+        if (payload && payload.used_time && payload.expire_minutes) {
+          const base = new Date(payload.used_time);
+          const minutes = Number(payload.expire_minutes);
+          if (!Number.isNaN(base.getTime()) && !Number.isNaN(minutes)) {
+            return new Date(base.getTime() + minutes * 60000).toISOString();
+          }
+        }
+        return payload ? payload.used_time : "";
+      };
+
+      const updateField = (key, value, element) => {
+        fieldValues[key] = value || "-";
+        element.textContent = fieldValues[key];
+      };
+
+      const refreshCopyState = () => {
+        const hasAny = Object.values(fieldValues).some(
+          (value) => value && value !== "-"
+        );
+        copyAllBtn.disabled = !hasAny;
+        infoList.querySelectorAll(".copy-mini").forEach((btn) => {
+          const key = btn.dataset.field;
+          const value = fieldValues[key];
+          btn.disabled = !value || value === "-";
+        });
+      };
+
+      const updateCardInfo = (payload) => {
+        const card =
+          payload && typeof payload === "object"
+            ? payload.card || (payload.data && payload.data.card) || null
+            : null;
+        const pan =
+          (card && (card.pan || card.card_number)) ||
+          (payload && (payload.pan || payload.card_number)) ||
+          "";
+        const cvc =
+          (card && (card.cvv || card.cvc)) ||
+          (payload && (payload.cvv || payload.cvc)) ||
+          "";
+        const exp = formatExpire(
+          (card && card.exp_month) || (payload && payload.exp_month),
+          (card && card.exp_year) || (payload && payload.exp_year)
+        );
+        const balanceValue =
+          (card && card.card_limit) ||
+          (payload && payload.card_limit) ||
+          (payload && payload.balance) ||
+          (payload && payload.card_balance) ||
+          "";
+        const activatedValue =
+          (payload && (payload.used_time || payload.activated_time)) ||
+          (payload && payload.activation_time) ||
+          (payload && payload.redeem_time) ||
+          "";
+        const expireTimeValue = deriveExpireTime(payload, card);
+
+        updateField("cardNumber", formatCardNumber(pan), cardNumber);
+        updateField("cardCvv", cvc || "-", cardCvv);
+        updateField("cardExp", exp, cardExp);
+        updateField("cardBalance", formatBalance(balanceValue), cardBalance);
+        updateField(
+          "cardActivated",
+          formatTimestamp(activatedValue),
+          cardActivated
+        );
+        updateField(
+          "cardExpireTime",
+          formatTimestamp(expireTimeValue),
+          cardExpireTime
+        );
+
+        refreshCopyState();
+      };
+
+      const initBillingInfo = () => {
+        billName.textContent = billingValues.billName;
+        billStreet.textContent = billingValues.billStreet;
+        billStreet2.textContent = billingValues.billStreet2;
+        billCity.textContent = billingValues.billCity;
+        billState.textContent = billingValues.billState;
+        billCountry.textContent = billingValues.billCountry;
+      };
+
+      const callApi = async () => {
+        const keyId = keyInput.value.trim();
+        if (!keyId) {
+          statusText.textContent = "请先输入卡密。";
+          return;
+        }
+
+        setLoading(true, "激活/查询中...");
+        resultBox.textContent = "请求发送中...";
+
+        try {
+          const primary = await requestApi("redeem", keyId);
+          let finalResult = primary;
+          let actionLabel = "激活";
+          let success = isApiSuccess(primary.response, primary.payload);
+
+          if (!success) {
+            const fallback = await requestApi("query", keyId);
+            const fallbackSuccess = isApiSuccess(
+              fallback.response,
+              fallback.payload
+            );
+            if (fallbackSuccess || fallback.response.ok) {
+              finalResult = fallback;
+              actionLabel = "查询";
+              success = fallbackSuccess;
+            }
+          }
+
+          resultBox.textContent = JSON.stringify(
+            {
+              ok: finalResult.response.ok,
+              status: finalResult.response.status,
+              data: finalResult.payload,
+            },
+            null,
+            2
+          );
+          statusText.textContent = success
+            ? `${actionLabel}完成。`
+            : `${actionLabel}失败，请检查卡密或接口状态。`;
+          updateCardInfo(finalResult.payload);
+        } catch (error) {
+          resultBox.textContent = JSON.stringify(
+            { ok: false, error: error.message || "网络错误" },
+            null,
+            2
+          );
+          statusText.textContent = "网络请求失败，请稍后再试。";
+          updateCardInfo(null);
+        } finally {
+          setLoading(false, "完成");
+        }
+      };
+
+      actionBtn.addEventListener("click", () => callApi());
+      infoList.addEventListener("click", async (event) => {
+        const button = event.target.closest(".copy-mini");
+        if (!button) return;
+        const key = button.dataset.field;
+        const value = fieldValues[key];
+        if (!value || value === "-") return;
+        const label = fieldLabels[key] || key;
+        try {
+          await navigator.clipboard.writeText(`${label}：${value}`);
+          statusText.textContent = `${label}已复制。`;
+        } catch (error) {
+          statusText.textContent = "复制失败，请手动复制。";
+        }
+      });
+
+      billingList.addEventListener("click", async (event) => {
+        const button = event.target.closest(".copy-mini");
+        if (!button) return;
+        const key = button.dataset.bill;
+        const value = billingValues[key];
+        if (value === undefined || value === null) return;
+        const label = billingLabels[key] || key;
+        try {
+          await navigator.clipboard.writeText(`${label}：${value}`);
+          statusText.textContent = `${label}已复制。`;
+        } catch (error) {
+          statusText.textContent = "复制失败，请手动复制。";
+        }
+      });
+
+      copyAllBtn.addEventListener("click", async () => {
+        const lines = Object.keys(fieldValues)
+          .map((key) => {
+            const value = fieldValues[key];
+            if (!value || value === "-") return "";
+            return `${fieldLabels[key]}：${value}`;
+          })
+          .filter(Boolean);
+        if (!lines.length) return;
+        try {
+          await navigator.clipboard.writeText(lines.join("\n"));
+          statusText.textContent = "全部卡片信息已复制。";
+        } catch (error) {
+          statusText.textContent = "复制失败，请手动复制。";
+        }
+      });
+
+      copyBillingBtn.addEventListener("click", async () => {
+        const lines = Object.keys(billingValues).map(
+          (key) => `${billingLabels[key]}：${billingValues[key]}`
+        );
+        try {
+          await navigator.clipboard.writeText(lines.join("\n"));
+          statusText.textContent = "账单地址已复制。";
+        } catch (error) {
+          statusText.textContent = "复制失败，请手动复制。";
+        }
+      });
+
+      initBillingInfo();
+      updateCardInfo(null);
+    </script>
+  </body>
+</html>

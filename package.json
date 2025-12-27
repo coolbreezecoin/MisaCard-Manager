@@ -1,0 +1,9 @@
+{
+  "name": "card-key-activate",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Simple key activation page with a local proxy server",
+  "scripts": {
+    "start": "node server.js"
+  }
+}
