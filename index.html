@@ -163,6 +163,109 @@
         gap: 12px;
       }
 
+      .tab-bar {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 12px;
+      }
+
+      .tab-btn {
+        border: 1px solid var(--border);
+        background: rgba(255, 255, 255, 0.04);
+        color: var(--muted);
+        padding: 8px 14px;
+        border-radius: 999px;
+        font-size: 13px;
+        cursor: pointer;
+        transition: border 120ms ease, color 120ms ease;
+      }
+
+      .tab-btn.active {
+        color: var(--text);
+        border-color: rgba(54, 209, 220, 0.6);
+      }
+
+      .tab-panel {
+        display: none;
+        min-height: 620px;
+      }
+
+      .tab-panel.active {
+        display: grid;
+        gap: 14px;
+      }
+
+      #batchPanel.active {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+      }
+
+      .batch-input {
+        width: 100%;
+        min-height: 140px;
+        resize: vertical;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid transparent;
+        border-radius: 12px;
+        color: var(--text);
+        padding: 14px 16px;
+        font-size: 14px;
+        outline: none;
+        transition: border 150ms ease, box-shadow 150ms ease;
+      }
+
+      .batch-input:focus {
+        border-color: rgba(255, 122, 89, 0.6);
+        box-shadow: 0 0 0 3px rgba(255, 122, 89, 0.2);
+      }
+
+      .batch-results {
+        display: grid;
+        gap: 10px;
+        max-height: 260px;
+        overflow-y: auto;
+        padding-right: 4px;
+        flex: 1;
+        min-height: 0;
+      }
+
+      .batch-row {
+        display: grid;
+        grid-template-columns: 1.6fr 0.8fr 0.7fr;
+        gap: 12px;
+        align-items: center;
+        padding: 8px 10px;
+        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid var(--border);
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+        font-size: 13px;
+      }
+
+      .batch-head {
+        color: var(--muted);
+        font-family: "Noto Serif SC", "PingFang SC", "Microsoft YaHei", serif;
+        font-size: 12px;
+        background: transparent;
+        border: none;
+        padding: 0 10px 2px;
+      }
+
+      .batch-empty {
+        color: var(--muted);
+        font-size: 13px;
+        text-align: center;
+        padding: 10px 0;
+      }
+
+      .batch-actions {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+        gap: 12px;
+        margin-top: auto;
+      }
+
       .btn {
         border: none;
         border-radius: 14px;
@@ -173,6 +276,13 @@
         color: #101425;
         background: linear-gradient(135deg, var(--accent), #ffc371);
         transition: transform 120ms ease, box-shadow 120ms ease;
+      }
+
+      .btn.compact {
+        height: 44px;
+        padding: 0 16px;
+        line-height: 44px;
+        white-space: nowrap;
       }
 
       .btn.secondary {
@@ -341,50 +451,85 @@
 
       <section class="panel">
         <div class="card">
-          <div>
-          
-            <input id="keyInput" type="text" placeholder="请输入卡密" />
+          <div class="tab-bar">
+            <button class="tab-btn active" data-tab="single">单卡激活</button>
+            <button class="tab-btn" data-tab="batch">批量激活</button>
           </div>
-          <div class="actions">
-            <button class="btn" id="actionBtn">激活/查询</button>
+          <div class="tab-panel active" id="singlePanel">
+            <div>
+              <input id="keyInput" type="text" placeholder="请输入卡密" />
+            </div>
+            <div class="actions">
+              <button class="btn" id="actionBtn">激活/查询</button>
+            </div>
+            <div class="card-title">卡片信息</div>
+            <div class="info-list" id="infoList">
+              <div class="info-row">
+                <div class="info-label">卡号</div>
+                <div class="info-value" id="cardNumber">-</div>
+                <button class="copy-mini" data-field="cardNumber">复制</button>
+              </div>
+              <div class="info-row">
+                <div class="info-label">安全码</div>
+                <div class="info-value" id="cardCvv">-</div>
+                <button class="copy-mini" data-field="cardCvv">复制</button>
+              </div>
+              <div class="info-row">
+                <div class="info-label">有效期</div>
+                <div class="info-value" id="cardExp">-</div>
+                <button class="copy-mini" data-field="cardExp">复制</button>
+              </div>
+              <div class="info-row">
+                <div class="info-label">卡片余额</div>
+                <div class="info-value" id="cardBalance">-</div>
+                <button class="copy-mini" data-field="cardBalance">复制</button>
+              </div>
+              <div class="info-row">
+                <div class="info-label">激活时间</div>
+                <div class="info-value" id="cardActivated">-</div>
+                <button class="copy-mini" data-field="cardActivated">复制</button>
+              </div>
+              <div class="info-row">
+                <div class="info-label">到期时间</div>
+                <div class="info-value" id="cardExpireTime">-</div>
+                <button class="copy-mini" data-field="cardExpireTime">复制</button>
+              </div>
+            </div>
+            <button class="btn secondary" id="copyAllBtn" disabled>
+              复制全部信息
+            </button>
+            <pre class="result hidden" id="resultBox">{}</pre>
           </div>
-          <div class="card-title">卡片信息</div>
-          <div class="info-list" id="infoList">
-            <div class="info-row">
-              <div class="info-label">卡号</div>
-              <div class="info-value" id="cardNumber">-</div>
-              <button class="copy-mini" data-field="cardNumber">复制</button>
+          <div class="tab-panel" id="batchPanel">
+            <div>
+              <textarea
+                id="batchInput"
+                class="batch-input"
+                placeholder="一行输入一个卡密，可输入多行"
+              ></textarea>
             </div>
-            <div class="info-row">
-              <div class="info-label">安全码</div>
-              <div class="info-value" id="cardCvv">-</div>
-              <button class="copy-mini" data-field="cardCvv">复制</button>
+            <div class="actions">
+              <button class="btn compact" id="batchBtn">批量激活</button>
             </div>
-            <div class="info-row">
-              <div class="info-label">有效期</div>
-              <div class="info-value" id="cardExp">-</div>
-              <button class="copy-mini" data-field="cardExp">复制</button>
+            <div class="card-title">批量卡片信息</div>
+            <div class="batch-results" id="batchResults">
+              <div class="batch-row batch-head">
+                <div>卡号</div>
+                <div>有效期</div>
+                <div>安全码</div>
+              </div>
+              <div class="batch-rows" id="batchRows"></div>
+              <div class="batch-empty" id="batchEmpty">暂无结果</div>
             </div>
-            <div class="info-row">
-              <div class="info-label">卡片余额</div>
-              <div class="info-value" id="cardBalance">-</div>
-              <button class="copy-mini" data-field="cardBalance">复制</button>
-            </div>
-            <div class="info-row">
-              <div class="info-label">激活时间</div>
-              <div class="info-value" id="cardActivated">-</div>
-              <button class="copy-mini" data-field="cardActivated">复制</button>
-            </div>
-            <div class="info-row">
-              <div class="info-label">到期时间</div>
-              <div class="info-value" id="cardExpireTime">-</div>
-              <button class="copy-mini" data-field="cardExpireTime">复制</button>
+            <div class="batch-actions">
+              <button class="btn secondary compact" id="batchCopyBtn" disabled>
+                一键复制结果
+              </button>
+              <button class="btn secondary compact" id="batchExportBtn" disabled>
+                一键导出结果
+              </button>
             </div>
           </div>
-          <button class="btn secondary" id="copyAllBtn" disabled>
-            复制全部信息
-          </button>
-          <pre class="result hidden" id="resultBox">{}</pre>
         </div>
 
         <div class="card">
@@ -442,10 +587,19 @@
 
       const keyInput = document.getElementById("keyInput");
       const actionBtn = document.getElementById("actionBtn");
+      const batchInput = document.getElementById("batchInput");
+      const batchBtn = document.getElementById("batchBtn");
       const statusText = document.getElementById("statusText");
       const resultBox = document.getElementById("resultBox");
       const copyAllBtn = document.getElementById("copyAllBtn");
       const infoList = document.getElementById("infoList");
+      const tabButtons = document.querySelectorAll(".tab-btn");
+      const singlePanel = document.getElementById("singlePanel");
+      const batchPanel = document.getElementById("batchPanel");
+      const batchRows = document.getElementById("batchRows");
+      const batchEmpty = document.getElementById("batchEmpty");
+      const batchCopyBtn = document.getElementById("batchCopyBtn");
+      const batchExportBtn = document.getElementById("batchExportBtn");
       const billingList = document.getElementById("billingList");
       const copyBillingBtn = document.getElementById("copyBillingBtn");
       const cardNumber = document.getElementById("cardNumber");
@@ -500,8 +654,15 @@
         billCountry: "美国",
       };
 
+      let batchSummaries = [];
+
       const setLoading = (isLoading, label) => {
         actionBtn.disabled = isLoading;
+        statusText.textContent = isLoading ? label : "等待输入卡密...";
+      };
+
+      const setBatchLoading = (isLoading, label) => {
+        batchBtn.disabled = isLoading;
         statusText.textContent = isLoading ? label : "等待输入卡密...";
       };
 
@@ -632,6 +793,30 @@
         refreshCopyState();
       };
 
+      const extractCardSummary = (payload) => {
+        const card =
+          payload && typeof payload === "object"
+            ? payload.card || (payload.data && payload.data.card) || null
+            : null;
+        const pan =
+          (card && (card.pan || card.card_number)) ||
+          (payload && (payload.pan || payload.card_number)) ||
+          "";
+        const cvc =
+          (card && (card.cvv || card.cvc)) ||
+          (payload && (payload.cvv || payload.cvc)) ||
+          "";
+        const exp = formatExpire(
+          (card && card.exp_month) || (payload && payload.exp_month),
+          (card && card.exp_year) || (payload && payload.exp_year)
+        );
+        return {
+          pan: formatCardNumber(pan),
+          exp,
+          cvc: cvc || "-",
+        };
+      };
+
       const initBillingInfo = () => {
         billName.textContent = billingValues.billName;
         billStreet.textContent = billingValues.billStreet;
@@ -653,24 +838,7 @@
         resultBox.textContent = "请求发送中...";
 
         try {
-          const primary = await requestApi("redeem", keyId);
-          let finalResult = primary;
-          let actionLabel = "激活";
-          let success = isApiSuccess(primary.response, primary.payload);
-
-          if (!success) {
-            const fallback = await requestApi("query", keyId);
-            const fallbackSuccess = isApiSuccess(
-              fallback.response,
-              fallback.payload
-            );
-            if (fallbackSuccess || fallback.response.ok) {
-              finalResult = fallback;
-              actionLabel = "查询";
-              success = fallbackSuccess;
-            }
-          }
-
+          const finalResult = await runActivation(keyId);
           resultBox.textContent = JSON.stringify(
             {
               ok: finalResult.response.ok,
@@ -680,9 +848,9 @@
             null,
             2
           );
-          statusText.textContent = success
-            ? `${actionLabel}完成。`
-            : `${actionLabel}失败，请检查卡密或接口状态。`;
+          statusText.textContent = finalResult.success
+            ? `${finalResult.actionLabel}完成。`
+            : `${finalResult.actionLabel}失败，请检查卡密或接口状态。`;
           updateCardInfo(finalResult.payload);
         } catch (error) {
           resultBox.textContent = JSON.stringify(
@@ -697,7 +865,148 @@
         }
       };
 
+      const runActivation = async (keyId) => {
+        const primary = await requestApi("redeem", keyId);
+        let finalResult = primary;
+        let actionLabel = "激活";
+        let success = isApiSuccess(primary.response, primary.payload);
+
+        if (!success) {
+          const fallback = await requestApi("query", keyId);
+          const fallbackSuccess = isApiSuccess(
+            fallback.response,
+            fallback.payload
+          );
+          if (fallbackSuccess || fallback.response.ok) {
+            finalResult = fallback;
+            actionLabel = "查询";
+            success = fallbackSuccess;
+          }
+        }
+
+        return {
+          response: finalResult.response,
+          payload: finalResult.payload,
+          success,
+          actionLabel,
+        };
+      };
+
+      const clearBatchRows = () => {
+        batchRows.innerHTML = "";
+        batchEmpty.classList.remove("hidden");
+        batchSummaries = [];
+        batchCopyBtn.disabled = true;
+        batchExportBtn.disabled = true;
+      };
+
+      const renderBatchRow = (summary) => {
+        const row = document.createElement("div");
+        row.className = "batch-row";
+        const pan = document.createElement("div");
+        pan.textContent = summary.pan || "-";
+        const exp = document.createElement("div");
+        exp.textContent = summary.exp || "-";
+        const cvc = document.createElement("div");
+        cvc.textContent = summary.cvc || "-";
+        row.append(pan, exp, cvc);
+        batchRows.append(row);
+        batchEmpty.classList.add("hidden");
+        batchSummaries.push(summary);
+        batchCopyBtn.disabled = false;
+        batchExportBtn.disabled = false;
+      };
+
+      const runBatchActivation = async () => {
+        const keys = batchInput.value
+          .split(/\r?\n/)
+          .map((line) => line.trim())
+          .filter(Boolean);
+
+        if (!keys.length) {
+          statusText.textContent = "请先输入卡密。";
+          return;
+        }
+
+        clearBatchRows();
+        setBatchLoading(true, `批量激活中 (0/${keys.length})...`);
+
+        try {
+          for (let i = 0; i < keys.length; i += 1) {
+            statusText.textContent = `批量激活中 (${i + 1}/${keys.length})...`;
+            const result = await runActivation(keys[i]);
+            const summary = extractCardSummary(result.payload);
+            renderBatchRow(summary);
+            if (i < keys.length - 1) {
+              await new Promise((resolve) => setTimeout(resolve, 3000));
+            }
+          }
+          batchEmpty.classList.add("hidden");
+          statusText.textContent = "批量激活完成。";
+        } catch (error) {
+          statusText.textContent = "批量激活失败，请稍后再试。";
+        } finally {
+          setBatchLoading(false, "完成");
+        }
+      };
+
       actionBtn.addEventListener("click", () => callApi());
+      batchBtn.addEventListener("click", () => runBatchActivation());
+      batchCopyBtn.addEventListener("click", async () => {
+        if (!batchSummaries.length) return;
+        const lines = batchSummaries.map(
+          (item) => `${item.pan || "-"}\t${item.exp || "-"}\t${item.cvc || "-"}`
+        );
+        try {
+          await navigator.clipboard.writeText(lines.join("\n"));
+          statusText.textContent = "批量结果已复制。";
+        } catch (error) {
+          statusText.textContent = "复制失败，请手动复制。";
+        }
+      });
+      batchExportBtn.addEventListener("click", () => {
+        if (!batchSummaries.length) return;
+        const escapeCsv = (value) => {
+          const text = String(value ?? "");
+          if (/[",\n]/.test(text)) {
+            return `"${text.replace(/"/g, '""')}"`;
+          }
+          return text;
+        };
+        const rows = [
+          ["卡号", "有效期", "安全码"],
+          ...batchSummaries.map((item) => [
+            item.pan || "",
+            item.exp || "",
+            item.cvc || "",
+          ]),
+        ];
+        const csvContent = rows.map((row) => row.map(escapeCsv).join(",")).join("\n");
+        const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = url;
+        link.download = `batch-cards-${Date.now()}.csv`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        statusText.textContent = "批量结果已导出。";
+      });
+      tabButtons.forEach((button) => {
+        button.addEventListener("click", () => {
+          const target = button.dataset.tab;
+          tabButtons.forEach((btn) => btn.classList.remove("active"));
+          button.classList.add("active");
+          if (target === "batch") {
+            singlePanel.classList.remove("active");
+            batchPanel.classList.add("active");
+          } else {
+            batchPanel.classList.remove("active");
+            singlePanel.classList.add("active");
+          }
+        });
+      });
       infoList.addEventListener("click", async (event) => {
         const button = event.target.closest(".copy-mini");
         if (!button) return;
