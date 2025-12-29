@@ -5,6 +5,7 @@ const path = require("path");
 const { URL } = require("url");
 
 const PORT = process.env.PORT || 3000;
+const HOST = process.env.HOST || "0.0.0.0";
 const UPSTREAM = "https://mercury.wxie.de";
 const INDEX_PATH = path.join(__dirname, "index.html");
 
@@ -58,6 +59,12 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  if (url.pathname === "/health") {
+    res.writeHead(200, { "Content-Type": "text/plain; charset=utf-8" });
+    res.end("ok");
+    return;
+  }
+
   if (url.pathname === "/" || url.pathname === "/index.html") {
     serveIndex(res);
     return;
@@ -67,6 +74,6 @@ const server = http.createServer((req, res) => {
   res.end("Not Found");
 });
 
-server.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
+server.listen(PORT, HOST, () => {
+  console.log(`Server running at http://${HOST}:${PORT}`);
 });
