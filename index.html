@@ -368,6 +368,10 @@
         border: 1px solid var(--border);
       }
 
+      .info-row.hidden-row {
+        display: none;
+      }
+
       .info-label {
         font-size: 12px;
         color: var(--muted);
@@ -495,17 +499,17 @@
                 <div class="info-value" id="cardBalance">-</div>
                 <button class="copy-mini" data-field="cardBalance">复制</button>
               </div>
-              <div class="info-row">
-                <div class="info-label">激活时间</div>
-                <div class="info-value" id="cardActivated">-</div>
-                <button class="copy-mini" data-field="cardActivated">复制</button>
-              </div>
-              <div class="info-row">
-                <div class="info-label">到期时间</div>
-                <div class="info-value" id="cardExpireTime">-</div>
-                <button class="copy-mini" data-field="cardExpireTime">复制</button>
-              </div>
+            <div class="info-row hidden-row reveal-row">
+              <div class="info-label">激活时间</div>
+              <div class="info-value" id="cardActivated">-</div>
+              <button class="copy-mini" data-field="cardActivated">复制</button>
             </div>
+            <div class="info-row hidden-row reveal-row">
+              <div class="info-label">到期时间</div>
+              <div class="info-value" id="cardExpireTime">-</div>
+              <button class="copy-mini" data-field="cardExpireTime">复制</button>
+            </div>
+          </div>
             <button class="btn secondary" id="copyAllBtn" disabled>
               复制全部信息
             </button>
@@ -606,6 +610,7 @@
       const resultBox = document.getElementById("resultBox");
       const copyAllBtn = document.getElementById("copyAllBtn");
       const infoList = document.getElementById("infoList");
+      const revealRows = document.querySelectorAll(".reveal-row");
       const tabButtons = document.querySelectorAll(".tab-btn");
       const singlePanel = document.getElementById("singlePanel");
       const batchPanel = document.getElementById("batchPanel");
@@ -668,6 +673,8 @@
       };
 
       let batchSummaries = [];
+      let copyAllUnlockCount = 0;
+      let copyAllUnlocked = false;
 
       const setLoading = (isLoading, label) => {
         actionBtn.disabled = isLoading;
@@ -677,6 +684,20 @@
       const setBatchLoading = (isLoading, label) => {
         batchBtn.disabled = isLoading;
         statusText.textContent = isLoading ? label : "等待输入卡密...";
+      };
+
+      const handleCopyAllUnlock = () => {
+        if (copyAllUnlocked) return;
+        copyAllUnlockCount += 1;
+        if (copyAllUnlockCount >= 3) {
+          copyAllUnlocked = true;
+          revealRows.forEach((row) => row.classList.remove("hidden-row"));
+        }
+      };
+
+      const resetCopyAllUnlock = () => {
+        if (copyAllUnlocked) return;
+        copyAllUnlockCount = 0;
       };
 
       const requestApi = async (type, keyId) => {
@@ -702,7 +723,14 @@
         return clean.replace(/(.{4})/g, "$1 ").trim();
       };
 
-      const formatExpire = (month, year) => {
+      const formatExpireLabel = (month, year) => {
+        if (!month || !year) return "-";
+        const mm = String(month).padStart(2, "0");
+        const yy = String(year).slice(-2);
+        return `${mm}月/${yy}年`;
+      };
+
+      const formatExpirePlain = (month, year) => {
         if (!month || !year) return "-";
         const mm = String(month).padStart(2, "0");
         const yy = String(year).slice(-2);
@@ -771,7 +799,7 @@
           (card && (card.cvv || card.cvc)) ||
           (payload && (payload.cvv || payload.cvc)) ||
           "";
-        const exp = formatExpire(
+        const exp = formatExpireLabel(
           (card && card.exp_month) || (payload && payload.exp_month),
           (card && card.exp_year) || (payload && payload.exp_year)
         );
@@ -819,7 +847,7 @@
           (card && (card.cvv || card.cvc)) ||
           (payload && (payload.cvv || payload.cvc)) ||
           "";
-        const exp = formatExpire(
+        const exp = formatExpirePlain(
           (card && card.exp_month) || (payload && payload.exp_month),
           (card && card.exp_year) || (payload && payload.exp_year)
         );
@@ -963,9 +991,16 @@
         }
       };
 
-      actionBtn.addEventListener("click", () => callApi());
-      batchBtn.addEventListener("click", () => runBatchActivation());
+      actionBtn.addEventListener("click", () => {
+        resetCopyAllUnlock();
+        callApi();
+      });
+      batchBtn.addEventListener("click", () => {
+        resetCopyAllUnlock();
+        runBatchActivation();
+      });
       batchCopyBtn.addEventListener("click", async () => {
+        resetCopyAllUnlock();
         if (!batchSummaries.length) return;
         const lines = batchSummaries.map(
           (item) => `${item.pan || "-"}\t${item.exp || "-"}\t${item.cvc || "-"}`
@@ -978,6 +1013,7 @@
         }
       });
       batchExportBtn.addEventListener("click", () => {
+        resetCopyAllUnlock();
         if (!batchSummaries.length) return;
         const escapeCsv = (value) => {
           const text = String(value ?? "");
@@ -1008,6 +1044,7 @@
       });
       tabButtons.forEach((button) => {
         button.addEventListener("click", () => {
+          resetCopyAllUnlock();
           const target = button.dataset.tab;
           tabButtons.forEach((btn) => btn.classList.remove("active"));
           button.classList.add("active");
@@ -1026,6 +1063,7 @@
         const key = button.dataset.field;
         const value = fieldValues[key];
         if (!value || value === "-") return;
+        resetCopyAllUnlock();
         try {
           await navigator.clipboard.writeText(value);
           statusText.textContent = "已复制。";
@@ -1040,6 +1078,7 @@
         const key = button.dataset.bill;
         const value = billingValues[key];
         if (value === undefined || value === null) return;
+        resetCopyAllUnlock();
         try {
           await navigator.clipboard.writeText(value);
           statusText.textContent = "已复制。";
@@ -1049,6 +1088,7 @@
       });
 
       copyAllBtn.addEventListener("click", async () => {
+        handleCopyAllUnlock();
         const lines = Object.keys(fieldValues)
           .map((key) => {
             const value = fieldValues[key];
@@ -1066,6 +1106,7 @@
       });
 
       copyBillingBtn.addEventListener("click", async () => {
+        resetCopyAllUnlock();
         const lines = Object.keys(billingValues).map(
           (key) => `${billingLabels[key]}：${billingValues[key]}`
         );
